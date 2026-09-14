@@ -32,7 +32,7 @@ pipeline {
                 sh '''
                 $DOCKER run -d \
                 --name "$CONTAINER_NAME" \
-                -p 8081:80 \
+                -p 8082:80 \
                 "$IMAGE_NAME:latest"
                 '''
             }
