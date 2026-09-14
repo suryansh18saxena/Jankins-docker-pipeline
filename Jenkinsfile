@@ -4,6 +4,7 @@ pipeline {
     environment {
         IMAGE_NAME = "myapp"
         CONTAINER_NAME = "myapp-container"
+        PODMAN = "podman --cgroup-manager=cgroupfs"
     }
 
     stages {
@@ -11,9 +12,9 @@ pipeline {
         stage('Stop Existing Container') {
             steps {
                 sh '''
-                podman stop myapp-container || true
-                podman rm myapp-container || true
-                podman rmi myapp:latest || true
+                $PODMAN stop "$CONTAINER_NAME" 2>/dev/null || true
+                $PODMAN rm "$CONTAINER_NAME" 2>/dev/null || true
+                $PODMAN rmi "$IMAGE_NAME:latest" 2>/dev/null || true
                 '''
             }
         }
@@ -21,7 +22,7 @@ pipeline {
         stage('Build Podman Image') {
             steps {
                 sh '''
-                podman build -t myapp:latest .
+                $PODMAN build -t "$IMAGE_NAME:latest" .
                 '''
             }
         }
@@ -29,10 +30,10 @@ pipeline {
         stage('Run Container') {
             steps {
                 sh '''
-                podman run -d \
-                --name myapp-container \
+                $PODMAN run -d \
+                --name "$CONTAINER_NAME" \
                 -p 8080:80 \
-                myapp:latest
+                "$IMAGE_NAME:latest"
                 '''
             }
         }
