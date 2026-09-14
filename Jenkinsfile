@@ -8,27 +8,20 @@ pipeline {
 
     stages {
 
-        stage('Remove Old Image') {
-            steps {
-                sh '''
-                docker rmi myapp:latest || true
-                '''
-            }
-        }
-
-        stage('Build Docker Image') {
-            steps {
-                sh '''
-                docker build -t myapp:latest .
-                '''
-            }
-        }
-
         stage('Stop Existing Container') {
             steps {
                 sh '''
-                docker stop myapp-container || true
-                docker rm myapp-container || true
+                podman stop myapp-container || true
+                podman rm myapp-container || true
+                podman rmi myapp:latest || true
+                '''
+            }
+        }
+
+        stage('Build Podman Image') {
+            steps {
+                sh '''
+                podman build -t myapp:latest .
                 '''
             }
         }
@@ -36,9 +29,9 @@ pipeline {
         stage('Run Container') {
             steps {
                 sh '''
-                docker run -d \
+                podman run -d \
                 --name myapp-container \
-                -p 80:80 \
+                -p 8080:80 \
                 myapp:latest
                 '''
             }
